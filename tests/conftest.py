@@ -939,23 +939,19 @@ def prod_env_pillar_tree_root_dir(pillar_tree_root_dir):
     return dirname
 
 
-# @pytest.fixture(scope='session')
-# def salt_syndic_master_config(request, salt_factories):
-#     return salt_factories.configure_master(request, 'syndic_master', order_masters=True)
+@pytest.fixture(scope='session')
+def salt_syndic_master_config(request, salt_factories):
+    return salt_factories.configure_master(request, 'syndic_master', order_masters=True)
 
-
-# @pytest.fixture(scope='session')
-# def salt_syndic_config(request, salt_factories, salt_syndic_master_config):
-#     return salt_factories.configure_syndic(request, 'syndic', master_of_masters_id='syndic_master')
-
-
-# @pytest.fixture(scope='session')
-# def salt_master_config(request, salt_factories, salt_syndic_master_config):
-    # return salt_factories.configure_master(request, 'master', master_of_masters_id='syndic_master')
 
 @pytest.fixture(scope='session')
-def salt_master_config(request, salt_factories):
-    return salt_factories.configure_master(request, 'master')
+def salt_syndic_config(request, salt_factories, salt_syndic_master_config):
+    return salt_factories.configure_syndic(request, 'syndic', master_of_masters_id='syndic_master')
+
+
+@pytest.fixture(scope='session')
+def salt_master_config(request, salt_factories, salt_syndic_master_config):
+    return salt_factories.configure_master(request, 'master', master_of_masters_id='syndic_master')
 
 
 @pytest.fixture(scope='session')
@@ -1242,8 +1238,8 @@ def bridge_pytest_and_runtests(reap_stray_processes,
                                base_env_pillar_tree_root_dir,
                                prod_env_pillar_tree_root_dir,
                                salt_factories,
-                               # salt_syndic_master_config,
-                               # salt_syndic_config,
+                               salt_syndic_master_config,
+                               salt_syndic_config,
                                salt_master_config,
                                salt_minion_config,
                                salt_sub_minion_config):
@@ -1251,8 +1247,8 @@ def bridge_pytest_and_runtests(reap_stray_processes,
     RUNTIME_VARS.RUNTIME_CONFIGS['master'] = freeze(salt_master_config)
     RUNTIME_VARS.RUNTIME_CONFIGS['minion'] = freeze(salt_minion_config)
     RUNTIME_VARS.RUNTIME_CONFIGS['sub_minion'] = freeze(salt_sub_minion_config)
-    # RUNTIME_VARS.RUNTIME_CONFIGS['syndic_master'] = freeze(salt_syndic_master_config)
-    # RUNTIME_VARS.RUNTIME_CONFIGS['syndic'] = freeze(salt_syndic_config)
+    RUNTIME_VARS.RUNTIME_CONFIGS['syndic_master'] = freeze(salt_syndic_master_config)
+    RUNTIME_VARS.RUNTIME_CONFIGS['syndic'] = freeze(salt_syndic_config)
     RUNTIME_VARS.RUNTIME_CONFIGS['client_config'] = freeze(salt.config.client_config(salt_master_config['conf_file']))
 
     # Make sure unittest2 classes know their paths
@@ -1260,8 +1256,19 @@ def bridge_pytest_and_runtests(reap_stray_processes,
     RUNTIME_VARS.TMP_CONF_DIR = os.path.dirname(salt_master_config['conf_file'])
     RUNTIME_VARS.TMP_MINION_CONF_DIR = os.path.dirname(salt_minion_config['conf_file'])
     RUNTIME_VARS.TMP_SUB_MINION_CONF_DIR = os.path.dirname(salt_sub_minion_config['conf_file'])
-    # RUNTIME_VARS.TMP_SYNDIC_MASTER_CONF_DIR = os.path.dirname(salt_syndic_master_config['conf_file'])
-    # RUNTIME_VARS.TMP_SYNDIC_MINION_CONF_DIR = os.path.dirname(salt_syndic_config['conf_file'])
+    RUNTIME_VARS.TMP_SYNDIC_MASTER_CONF_DIR = os.path.dirname(salt_syndic_master_config['conf_file'])
+    RUNTIME_VARS.TMP_SYNDIC_MINION_CONF_DIR = os.path.dirname(salt_syndic_config['conf_file'])
+
+    # Let's copy over the test cloud config files and directories into the running master config directory
+    for entry in os.listdir(RUNTIME_VARS.CONF_DIR):
+        if not entry.startswith('cloud'):
+            continue
+        source = os.path.join(RUNTIME_VARS.CONF_DIR, entry)
+        dest = os.path.join(RUNTIME_VARS.TMP_CONF_DIR, entry)
+        if os.path.isdir(source):
+            shutil.copytree(source, dest)
+        else:
+            shutil.copyfile(source, dest)
 # <---- Salt Configuration -------------------------------------------------------------------------------------------
 # <---- Fixtures Overrides -------------------------------------------------------------------------------------------
 
