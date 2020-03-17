@@ -21,10 +21,10 @@ from tests.support.case import TestCase
 from tests.support.cli_scripts import ScriptPathMixin
 from tests.support.helpers import get_unused_localhost_port
 from tests.support.mixins import AdaptedConfigurationTestCaseMixin
-from tests.support.processes import terminate_process
 
 # Import 3rd-party libs
 import pytest
+from saltfactories.utils.processes.helpers import terminate_process
 
 # Import Salt libs
 import salt.ext.six as six

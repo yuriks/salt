@@ -28,7 +28,6 @@ from datetime import datetime, timedelta
 # Import salt testing libs
 from tests.support.unit import TestCase
 from tests.support.helpers import RedirectStdStreams, requires_sshd_server
-from tests.support.processes import terminate_process
 from tests.support.runtests import RUNTIME_VARS
 from tests.support.mixins import (AdaptedConfigurationTestCaseMixin,
                                   SaltClientTestCaseMixin,
@@ -39,6 +38,7 @@ from tests.support.cli_scripts import ScriptPathMixin
 # Import 3rd-party libs
 from salt.ext import six
 from salt.ext.six.moves import cStringIO  # pylint: disable=import-error
+from saltfactories.utils.processes.helpers import terminate_process
 
 STATE_FUNCTION_RUNNING_RE = re.compile(
     r'''The function (?:"|')(?P<state_func>.*)(?:"|') is running as PID '''

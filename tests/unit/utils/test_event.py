@@ -25,7 +25,7 @@ import salt.config
 import salt.utils.event
 import salt.utils.stringutils
 
-# Import 3rd-+arty libs
+# Import 3rd-party libs
 from salt.ext.tornado.testing import AsyncTestCase
 import salt.ext.tornado.ioloop
 import zmq
@@ -34,7 +34,7 @@ import zmq.eventloop.ioloop
 if not hasattr(zmq.eventloop.ioloop, 'ZMQIOLoop'):
     zmq.eventloop.ioloop.ZMQIOLoop = zmq.eventloop.ioloop.IOLoop
 from salt.ext.six.moves import range  # pylint: disable=import-error,redefined-builtin
-from tests.support.processes import terminate_process
+from saltfactories.utils.processes.helpers import terminate_process
 
 NO_LONG_IPC = False
 if getattr(zmq, 'IPC_PATH_MAX_LEN', 103) <= 103:

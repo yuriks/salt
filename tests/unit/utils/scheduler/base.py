@@ -14,7 +14,6 @@ import os
 from tests.support.case import TestCase
 from tests.support.mixins import SaltReturnAssertsMixin
 from tests.support.mock import MagicMock, patch
-from tests.support.processes import terminate_process
 from tests.support.runtests import RUNTIME_VARS
 
 # Import Salt libs
@@ -22,6 +21,9 @@ import salt.utils.schedule
 import salt.utils.platform
 from salt.modules.test import ping
 from salt.utils.process import SubprocessList
+
+from saltfactories.utils.processes.helpers import terminate_process
+
 log = logging.getLogger(__name__)
 
 
